@@ -1,5 +1,6 @@
 package com.example.android.pets.Data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class PetsContract {
@@ -21,5 +22,18 @@ public final class PetsContract {
         public final static int gender_Pet_Male=1;
         public final static int gender_Pet_Female=2;
 
+
+        public static final String CONTENT_AUTHORITY = "om.example.android.pets.Data";
+        /**
+         * To make this a usable URI, we use the parse method which takes in a URI string and returns a Uri.
+         */
+        public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+        /**
+         * PATH_TableName
+         * This constants stores the path for each of the tables which will be appended to the base content URI.
+         */
+        public static final String PATH_PETS = "pets";
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
     }
 }

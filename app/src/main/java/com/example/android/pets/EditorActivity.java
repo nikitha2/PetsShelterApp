@@ -15,6 +15,9 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,13 +29,28 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import com.example.android.pets.Data.PetProvider;
 import com.example.android.pets.Data.PetsContract;
+import com.example.android.pets.Data.PetsDbHelper;
+
+import java.io.Serializable;
+
+import static com.example.android.pets.Data.Constants.SQL_SELECT_PETS_TABLE;
+import static com.example.android.pets.Data.Constants.petCounter;
+import static com.example.android.pets.Data.PetsContract.PetsEntry.COLUMN_PET_BREED;
+import static com.example.android.pets.Data.PetsContract.PetsEntry.COLUMN_PET_GENDER;
+import static com.example.android.pets.Data.PetsContract.PetsEntry.COLUMN_PET_NAME;
+import static com.example.android.pets.Data.PetsContract.PetsEntry.COLUMN_PET_WEIGHT;
+import static com.example.android.pets.Data.PetsContract.PetsEntry.TABLE_NAME;
 
 /**
  * Allows user to create a new pet or edit an existing one.
  */
 public class EditorActivity extends AppCompatActivity {
+    /** Tag for the log messages */
+    public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
@@ -45,7 +63,7 @@ public class EditorActivity extends AppCompatActivity {
 
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
-
+    SQLiteDatabase db;
     /**
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
@@ -57,6 +75,7 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        db = readDatabaseInfo();
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
@@ -120,11 +139,24 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_PET_NAME, String.valueOf(mNameEditText.getText()));
+                values.put(COLUMN_PET_BREED, String.valueOf(mBreedEditText.getText()));
+                values.put(COLUMN_PET_GENDER,mGender);
+                values.put(COLUMN_PET_WEIGHT, String.valueOf(mWeightEditText.getText()));
+                long newRowId= insertDummyData(values);
+                Toast toast;
+                if(newRowId!=-1) {
+                    toast = Toast.makeText(this," Pet added with new row id :"+newRowId, Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                else{
+                    toast=Toast.makeText(this," Error when adding pet ", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
-                // Do nothing for now
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
@@ -133,5 +165,21 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private long insertDummyData(ContentValues values) {
+        // Insert the new row, returning the primary key value of the new row
+        return db.insert(TABLE_NAME, null, values);
+    }
+
+    private SQLiteDatabase readDatabaseInfo() {
+        // To access our database, we instantiate our subclass of SQLiteOpenHelper
+        // and pass the context, which is the current activity.
+        PetsDbHelper mDbHelper = new PetsDbHelper(this);
+
+        // Create and/or open a database to read from it
+        // SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        SQLiteDatabase db1 = mDbHelper.getWritableDatabase();
+        return db1;
     }
 }
