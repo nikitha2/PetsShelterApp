@@ -1,6 +1,7 @@
 package com.example.android.pets.Data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -8,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import static com.example.android.pets.Data.Constants.*;
 import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
 
@@ -43,9 +43,11 @@ public class PetProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         match=sUriMatcher.match(uri);
         switch(match) {
-            case PETS: cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
-            case PETS_ID:
-            default:
+            case PETS: cursor = db.query(TABLE_NAME, projection,  selection, selectionArgs, null,null, sortOrder);break;
+            case PETS_ID:selection=PetsContract.PetsEntry._ID+"=?";
+                         selectionArgs=new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                         cursor = db.query(TABLE_NAME, projection,  selection, selectionArgs, null,null, sortOrder); break;
+            default:cursor=null;break;
         }
         return cursor;
     }
