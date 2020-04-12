@@ -147,14 +147,14 @@ public class EditorActivity extends AppCompatActivity {
                 values.put(COLUMN_PET_BREED, String.valueOf(mBreedEditText.getText()));
                 values.put(COLUMN_PET_GENDER,mGender);
                 values.put(COLUMN_PET_WEIGHT, String.valueOf(mWeightEditText.getText()));
-                long newRowId= insertDummyData(values);
+                long newRowId= insertPetData(values);
                 Toast toast;
                 if(newRowId!=-1) {
-                    toast = Toast.makeText(this," Pet added with new row id :"+newRowId, Toast.LENGTH_SHORT);
+                    toast = Toast.makeText(this,R.string.petAdded, Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 else{
-                    toast=Toast.makeText(this," Error when adding pet ", Toast.LENGTH_SHORT);
+                    toast=Toast.makeText(this,R.string.errorWhenpetAdd, Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 return true;
@@ -170,7 +170,7 @@ public class EditorActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private long insertDummyData(ContentValues values) {
+    private long insertPetData(ContentValues values) {
         // Insert the new row, returning the primary key value of the new row
         Uri result= getContentResolver().insert(Uri.parse(URI),values);
         return ContentUris.parseId(result);
