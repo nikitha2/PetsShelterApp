@@ -49,11 +49,8 @@ import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
-    PetsDbHelper mDbHelper;
-    SQLiteDatabase db;
     Cursor cursor;
     Uri uri=Uri.parse(URI);
-
 
     /** Tag for the log messages */
     public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
