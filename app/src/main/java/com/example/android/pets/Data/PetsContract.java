@@ -23,7 +23,7 @@ public final class PetsContract {
         public final static int gender_Pet_Female=2;
 
 
-        public static final String CONTENT_AUTHORITY = "om.example.android.pets.Data";
+        public static final String CONTENT_AUTHORITY = "com.example.android.pets.Data";
         /**
          * To make this a usable URI, we use the parse method which takes in a URI string and returns a Uri.
          */

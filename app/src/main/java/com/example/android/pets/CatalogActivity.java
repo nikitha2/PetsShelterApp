@@ -15,13 +15,17 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 
+import com.example.android.pets.Data.Constants;
 import com.example.android.pets.Data.PetProvider;
+import com.example.android.pets.Data.PetsContract;
 import com.example.android.pets.Data.PetsDbHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,10 +37,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.android.pets.Data.Constants.petCounter;
+import static com.example.android.pets.Data.Constants.*;
 import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
 
 /**
@@ -45,6 +51,10 @@ import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
 public class CatalogActivity extends AppCompatActivity {
     PetsDbHelper mDbHelper;
     SQLiteDatabase db;
+    Cursor cursor;
+    Uri uri=Uri.parse(URI);
+
+
     /** Tag for the log messages */
     public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
 
@@ -60,8 +70,8 @@ public class CatalogActivity extends AppCompatActivity {
         //.tables  // will give the list of tables in the db
         //PLASMA TABLE_INFO(Pets) //pets is the table name - will give the columns created. check if table created as expected.
         //.schema will give the command used to create the table.
-        db=readDatabaseInfo();
-        displayDatabaseInfo();
+        Cursor cursor=readDatabaseInfo();
+        displayDatabaseInfo(cursor);
 
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -79,8 +89,8 @@ public class CatalogActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        db=readDatabaseInfo();
-        displayDatabaseInfo();
+        cursor=readDatabaseInfo();
+        displayDatabaseInfo(cursor);
     }
 
     @Override
@@ -101,8 +111,8 @@ public class CatalogActivity extends AppCompatActivity {
                 Log.v("Catalog Activity","newRowId = " +newRowId);
                 Toast toast ;
                 if(newRowId!=-1) {
-                    db=readDatabaseInfo();
-                    displayDatabaseInfo();
+                    cursor=readDatabaseInfo();
+                    displayDatabaseInfo(cursor);
                     toast = Toast.makeText(this, " Pet added with new row id :" + newRowId, Toast.LENGTH_SHORT);
                     toast.show();
                 }
@@ -115,7 +125,8 @@ public class CatalogActivity extends AppCompatActivity {
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 deleteAllRowsInDatabase();
-                displayDatabaseInfo();
+                cursor=readDatabaseInfo();
+                displayDatabaseInfo(cursor);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -123,7 +134,7 @@ public class CatalogActivity extends AppCompatActivity {
 
     private void deleteAllRowsInDatabase() {
         //returns the number of rows deleted
-        db.delete(TABLE_NAME, null, null);
+        getContentResolver().delete(uri,null,null);
         petCounter=1;
     }
 
@@ -134,39 +145,30 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(COLUMN_PET_GENDER, 2);
         values.put(COLUMN_PET_WEIGHT, 20);
         petCounter++;
+        Uri result = getContentResolver().insert(uri, values);
         // Insert the new row, returning the primary key value of the new row
-        return db.insert(TABLE_NAME, null, values);
+        return ContentUris.parseId(result);
     }
 
     /**
      * Method to create the database
      */
-    private SQLiteDatabase readDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        mDbHelper = new PetsDbHelper(this);
-
-        // Create and/or open a database to read from it
-        // SQLiteDatabase db = mDbHelper.getReadableDatabase();
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        return db;
+    private Cursor readDatabaseInfo() {
+        Uri uri1;
+        String[] columns={COLUMN_PET_NAME,COLUMN_PET_BREED,COLUMN_PET_WEIGHT,COLUMN_PET_GENDER};
+        //"ORDER BY col "+ PetsContract.PetsEntry._ID
+        // to get a Cursor that contains all rows from the pets table.
+        cursor=getContentResolver().query(uri,columns,null,null,null);
+        return cursor;
     }
 
     /**
      * Helper method to display information in the onscreen TextView about the state of
      * the pets database.
      */
-    private void displayDatabaseInfo() {
+    private void displayDatabaseInfo(Cursor cursor) {
         String name,breed,gender;
         String weight;
-        // Perform this raw SQL query "SELECT * FROM pets"
-        // to get a Cursor that contains all rows from the pets table.
-       // Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
-        String[] columns={COLUMN_PET_NAME,COLUMN_PET_BREED,COLUMN_PET_WEIGHT,COLUMN_PET_GENDER};
-//        String selection = COLUMN_PET_GENDER + "=?";
-//        String selectionArgs = new String[] { GENDER_FEMALE };
-
-        Cursor cursor = db.query(TABLE_NAME,null,null,null,null,null,null);
         int rowCount=cursor.getCount();
         int colCount=cursor.getColumnCount();
         ArrayList<String[]> rowLists = new ArrayList<>();
@@ -185,7 +187,7 @@ public class CatalogActivity extends AppCompatActivity {
             StringBuilder output=new StringBuilder();
             output.append("\n ");
             for(int row=0;row<rowLists.size();row++){
-                for(int col=0;col<rowLists.get(1).length;col++){
+                for(int col=0;col<rowLists.get(0).length;col++){
                     output.append(rowLists.get(row)[col]+"    ");
                 }
                 output.append("\n ");

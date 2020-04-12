@@ -7,8 +7,12 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import static com.example.android.pets.Data.Constants.*;
 import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
 
@@ -65,11 +69,22 @@ public class PetProvider extends ContentProvider {
     /**
      * Insert new data into the provider with the given ContentValues.
      */
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         match=sUriMatcher.match(uri);
-        return null;
+        Uri newUri = null;
+        long newId;
+        switch(match) {
+            case PETS: newId=db.insert(TABLE_NAME, null, values);
+                       newUri= Uri.parse(uri+"/"+newId);
+                       break;
+            case PETS_ID:newId=db.insert(TABLE_NAME, null, values);
+                         newUri= Uri.parse(uri+"/"+newId);
+                         break;
+        }
+        return newUri;
     }
 
     /**
@@ -80,8 +95,10 @@ public class PetProvider extends ContentProvider {
         match=sUriMatcher.match(uri);
 
         switch(match) {
-            case PETS:
-            case PETS_ID:
+            case PETS:db.delete(TABLE_NAME,selection,selectionArgs);break;
+            case PETS_ID:selection=PetsContract.PetsEntry._ID+"=?";
+                         selectionArgs=new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                         db.delete(TABLE_NAME,selection,selectionArgs);break;
             default:
         }
         return 0;
@@ -93,7 +110,15 @@ public class PetProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         match=sUriMatcher.match(uri);
-        return 0;
+        int updateStatus=-1;
+        switch(match) {
+            case PETS: updateStatus=db.update(TABLE_NAME,values,selection,selectionArgs);break;
+            case PETS_ID:selection=PetsContract.PetsEntry._ID+"=?";
+                         selectionArgs=new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                         updateStatus=db.update(TABLE_NAME,values,selection,selectionArgs);break;
+            default:cursor=null;break;
+        }
+        return updateStatus;
     }
 
 }
