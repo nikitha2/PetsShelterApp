@@ -4,6 +4,9 @@ import android.net.Uri;
 
 public final class Constants {
 
+    public static final int PETS=100;
+    public static final int PETS_ID=101;
+
     public static int petCounter=1;
     public static int DATABASE_VERSION =1;
     public static String SQL_CREATE_PETS_TABLE =  "CREATE TABLE " + PetsContract.PetsEntry.TABLE_NAME + " ("

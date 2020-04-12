@@ -2,10 +2,15 @@ package com.example.android.pets.Data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import static com.example.android.pets.Data.Constants.*;
+import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
 
 /**
  * ContentProvider for App: Pets
@@ -14,9 +19,19 @@ public class PetProvider extends ContentProvider {
     /** Tag for the log messages */
     public static final String LOG_TAG = PetProvider.class.getSimpleName();
     private PetsDbHelper petsDbHelper;
+    Cursor cursor;
+    SQLiteDatabase db;
+    int match;
+    public static final UriMatcher sUriMatcher=new UriMatcher(UriMatcher.NO_MATCH);
+
+    static {
+        sUriMatcher.addURI(CONTENT_AUTHORITY,TABLE_NAME,PETS);
+        sUriMatcher.addURI(CONTENT_AUTHORITY,TABLE_NAME+"/#",PETS_ID);
+    }
     @Override
     public boolean onCreate() {
         petsDbHelper=new PetsDbHelper(getContext());
+        db = petsDbHelper.getWritableDatabase();
         return false;
     }
 
@@ -26,7 +41,13 @@ public class PetProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+        match=sUriMatcher.match(uri);
+        switch(match) {
+            case PETS: cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
+            case PETS_ID:
+            default:
+        }
+        return cursor;
     }
 
     /**
@@ -35,6 +56,7 @@ public class PetProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
+        match=sUriMatcher.match(uri);
         return null;
     }
 
@@ -44,6 +66,7 @@ public class PetProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        match=sUriMatcher.match(uri);
         return null;
     }
 
@@ -52,6 +75,13 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        match=sUriMatcher.match(uri);
+
+        switch(match) {
+            case PETS:
+            case PETS_ID:
+            default:
+        }
         return 0;
     }
 
@@ -60,6 +90,8 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+        match=sUriMatcher.match(uri);
         return 0;
     }
+
 }
