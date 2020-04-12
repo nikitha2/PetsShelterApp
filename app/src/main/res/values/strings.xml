@@ -58,4 +58,7 @@
 
     <!-- Label for dropdown menu option if the pet is female [CHAR LIMIT=20] -->
     <string name="gender_female">Female</string>
+
+    <string name="insetNotPossible">Insert not possible with URI : </string>
+
 </resources>

@@ -15,9 +15,11 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +40,7 @@ import com.example.android.pets.Data.PetsDbHelper;
 import java.io.Serializable;
 
 import static com.example.android.pets.Data.Constants.SQL_SELECT_PETS_TABLE;
+import static com.example.android.pets.Data.Constants.URI;
 import static com.example.android.pets.Data.Constants.petCounter;
 import static com.example.android.pets.Data.PetsContract.PetsEntry.COLUMN_PET_BREED;
 import static com.example.android.pets.Data.PetsContract.PetsEntry.COLUMN_PET_GENDER;
@@ -49,6 +52,7 @@ import static com.example.android.pets.Data.PetsContract.PetsEntry.TABLE_NAME;
  * Allows user to create a new pet or edit an existing one.
  */
 public class EditorActivity extends AppCompatActivity {
+    Cursor cursor;
     /** Tag for the log messages */
     public static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
@@ -63,7 +67,6 @@ public class EditorActivity extends AppCompatActivity {
 
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
-    SQLiteDatabase db;
     /**
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
@@ -75,7 +78,7 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        db = readDatabaseInfo();
+        cursor = readDatabaseInfo();
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
@@ -169,17 +172,16 @@ public class EditorActivity extends AppCompatActivity {
 
     private long insertDummyData(ContentValues values) {
         // Insert the new row, returning the primary key value of the new row
-        return db.insert(TABLE_NAME, null, values);
+        Uri result= getContentResolver().insert(Uri.parse(URI),values);
+        return ContentUris.parseId(result);
     }
 
-    private SQLiteDatabase readDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        PetsDbHelper mDbHelper = new PetsDbHelper(this);
-
-        // Create and/or open a database to read from it
-        // SQLiteDatabase db = mDbHelper.getReadableDatabase();
-        SQLiteDatabase db1 = mDbHelper.getWritableDatabase();
-        return db1;
-    }
+    private Cursor readDatabaseInfo() {
+            Uri uri1;
+            String[] columns={COLUMN_PET_NAME,COLUMN_PET_BREED,COLUMN_PET_WEIGHT,COLUMN_PET_GENDER};
+            //"ORDER BY col "+ PetsContract.PetsEntry._ID
+            // to get a Cursor that contains all rows from the pets table.
+            cursor=getContentResolver().query(Uri.parse(URI),columns,null,null,null);
+            return cursor;
+        }
 }

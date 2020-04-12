@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 
+import com.example.android.pets.R;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -78,11 +80,11 @@ public class PetProvider extends ContentProvider {
         long newId;
         switch(match) {
             case PETS: newId=db.insert(TABLE_NAME, null, values);
-                       newUri= Uri.parse(uri+"/"+newId);
+                       newUri= ContentUris.withAppendedId(uri,newId);
                        break;
-            case PETS_ID:newId=db.insert(TABLE_NAME, null, values);
-                         newUri= Uri.parse(uri+"/"+newId);
-                         break;
+            default:
+                String e= R.string.insetNotPossible+uri.toString();
+                throw new IllegalArgumentException(e);
         }
         return newUri;
     }
