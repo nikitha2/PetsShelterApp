@@ -53,4 +53,15 @@
         <item name="android:paddingTop">16dp</item>
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
+
+    <style name="ListItemStyle">
+        <item name="android:layout_height">@dimen/item_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:layout_marginLeft">@dimen/item_margin</item>
+        <item name="android:layout_marginTop">@dimen/item_margin</item>
+        <item name="android:layout_marginBottom">@dimen/item_margin</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/item_textSize</item>
+    </style>
 </resources>

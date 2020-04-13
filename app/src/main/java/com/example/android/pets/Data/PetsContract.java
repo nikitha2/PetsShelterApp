@@ -1,5 +1,6 @@
 package com.example.android.pets.Data;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -21,13 +22,24 @@ public final class PetsContract {
         public final static int gender_Pet_Unknown=0;
         public final static int gender_Pet_Male=1;
         public final static int gender_Pet_Female=2;
-
-
         public static final String CONTENT_AUTHORITY = "com.example.android.pets.Data";
         /**
          * To make this a usable URI, we use the parse method which takes in a URI string and returns a Uri.
          */
         public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+
+        /**
+         * The MIME type of the {@link #CONTENT_URI} for a list of pets.
+         */
+        public static final String CONTENT_LIST_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_NAME;
+
+        /**
+         * The MIME type of the {@link #CONTENT_URI} for a single pet.
+         */
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_NAME;
 
         /**
          * PATH_TableName
@@ -35,5 +47,19 @@ public final class PetsContract {
          */
         public static final String PATH_PETS = "pets";
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
+
+        public static boolean isValidGender(int gender) {
+            if (gender == gender_Pet_Unknown || gender == gender_Pet_Male || gender == gender_Pet_Female) {
+                return true;
+            }
+            return false;
+        }
+
+        public static boolean isValidWeight(int wt) {
+            if (wt >=0) {
+                return true;
+            }
+            return false;
+        }
     }
 }

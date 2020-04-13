@@ -17,6 +17,7 @@ package com.example.android.pets;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import android.os.Bundle;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +41,7 @@ import com.example.android.pets.Data.PetsDbHelper;
 
 import java.io.Serializable;
 
+import static android.provider.BaseColumns._ID;
 import static com.example.android.pets.Data.Constants.SQL_SELECT_PETS_TABLE;
 import static com.example.android.pets.Data.Constants.URI;
 import static com.example.android.pets.Data.Constants.petCounter;
@@ -72,7 +75,7 @@ public class EditorActivity extends AppCompatActivity {
      * 0 for unknown gender, 1 for male, 2 for female.
      */
     private int mGender = 0;
-
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +89,25 @@ public class EditorActivity extends AppCompatActivity {
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
         setupSpinner();
+
+        intent = getIntent();
+        if (null != intent) { //Null Checking
+            String StrData= intent.getStringExtra("petName");
+            if(!intent.getStringExtra("petName").isEmpty()) {
+                mNameEditText.setText(intent.getStringExtra("petName"));
+            }
+            if(!intent.getStringExtra("petBreed").isEmpty()) {
+                mBreedEditText.setText(intent.getStringExtra("petBreed"));
+            }
+            if(!intent.getStringExtra("petWeight").isEmpty()) {
+                mWeightEditText.setText(intent.getStringExtra("petWeight"));
+            }
+            if(!intent.getStringExtra("petGender").isEmpty()) {
+                String value=intent.getStringExtra("petGender");
+                mGenderSpinner.setSelection(Integer.parseInt(value));
+            }
+
+        }
     }
 
     /**
@@ -147,16 +169,32 @@ public class EditorActivity extends AppCompatActivity {
                 values.put(COLUMN_PET_BREED, String.valueOf(mBreedEditText.getText()));
                 values.put(COLUMN_PET_GENDER,mGender);
                 values.put(COLUMN_PET_WEIGHT, String.valueOf(mWeightEditText.getText()));
-                long newRowId= insertPetData(values);
+                long newRowId = 0;
                 Toast toast;
-                if(newRowId!=-1) {
-                    toast = Toast.makeText(this,R.string.petAdded, Toast.LENGTH_SHORT);
-                    toast.show();
+                if (null != intent){
+                    newRowId = updatePetData(values);
+                    if(newRowId>0){
+                        Log.e(LOG_TAG, String.valueOf(R.string.petupdated));
+                        toast = Toast.makeText(this,R.string.petupdated, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    else{
+                        Log.e(LOG_TAG, String.valueOf(R.string.errorpetupdate));
+                    }
+                }else {
+                    newRowId = insertPetData(values);
+                    if(newRowId!=-1) {
+                        Log.e(LOG_TAG, String.valueOf(R.string.petAdded));
+                        toast = Toast.makeText(this,R.string.petAdded, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    else{
+                        Log.e(LOG_TAG, String.valueOf(R.string.errorWhenpetAdd));
+//                    toast=Toast.makeText(this,R.string.errorWhenpetAdd, Toast.LENGTH_SHORT);
+//                    toast.show();
+                    }
                 }
-                else{
-                    toast=Toast.makeText(this,R.string.errorWhenpetAdd, Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -173,7 +211,18 @@ public class EditorActivity extends AppCompatActivity {
     private long insertPetData(ContentValues values) {
         // Insert the new row, returning the primary key value of the new row
         Uri result= getContentResolver().insert(Uri.parse(URI),values);
-        return ContentUris.parseId(result);
+        if(result!=null) {
+            return ContentUris.parseId(result);
+        }
+        return -1;
+    }
+
+    private long updatePetData(ContentValues values) {
+        // Insert the new row, returning the primary key value of the new row
+        String selection=PetsContract.PetsEntry._ID+"=?";
+        String[] selectionArg=new String[]{intent.getStringExtra("id")};
+        int result = getContentResolver().update(Uri.parse(URI), values, selection, selectionArg);
+        return Long.valueOf(result);
     }
 
     private Cursor readDatabaseInfo() {

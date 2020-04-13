@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -168,11 +169,12 @@ public class CatalogActivity extends AppCompatActivity {
         String weight;
         int rowCount=cursor.getCount();
         int colCount=cursor.getColumnCount();
+        ArrayList<ListItems> listItemsArray=new ArrayList<ListItems>();
         ArrayList<String[]> rowLists = new ArrayList<>();
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
-            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+
             cursor.moveToPosition(-1);
             while(cursor.moveToNext()){
                 name=cursor.getString(cursor.getColumnIndex("Name"));
@@ -180,16 +182,20 @@ public class CatalogActivity extends AppCompatActivity {
                 gender=cursor.getString(cursor.getColumnIndex("Gender"));
                 weight=cursor.getString(cursor.getColumnIndex("Weight"));
                 rowLists.add(new String[]{name, breed, gender, weight});
+                listItemsArray.add(new ListItems(name,breed,gender,weight));
             }
-            StringBuilder output=new StringBuilder();
+            ListView displayView = (ListView) findViewById(R.id.text_view_pet);
+            PetsAdaptor petsAdaptor=new PetsAdaptor(this,listItemsArray);
+            displayView.setAdapter(petsAdaptor);
+
+            /*StringBuilder output=new StringBuilder();
             output.append("\n ");
             for(int row=0;row<rowLists.size();row++){
                 for(int col=0;col<rowLists.get(0).length;col++){
                     output.append(rowLists.get(row)[col]+"    ");
                 }
                 output.append("\n ");
-            }
-            displayView.setText("Number of rows in pets database table: " + output);
+            }*/
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.

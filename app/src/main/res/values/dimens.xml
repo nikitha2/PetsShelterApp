@@ -15,5 +15,9 @@
 
     <!-- Common margin value used throughout the app -->
     <dimen name="activity_margin">16dp</dimen>
+    <dimen name="item_height">25dp</dimen>
+    <dimen name="item_margin">8dp</dimen>
+    <dimen name="item_textSize">20sp</dimen>
+
 </resources>
 
