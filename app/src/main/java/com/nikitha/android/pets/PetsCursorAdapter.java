@@ -1,4 +1,4 @@
-package com.example.android.pets;
+package com.nikitha.android.pets;
 
 import android.app.Activity;
 import android.content.ContentUris;
@@ -9,18 +9,13 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import com.example.android.pets.Data.PetsContract;
+import com.nikitha.android.pets.R;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import androidx.annotation.NonNull;
-
-import static com.example.android.pets.Data.Constants.URI;
-import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
+import static com.nikitha.android.pets.Data.Constants.URI;
+import static com.nikitha.android.pets.Data.PetsContract.PetsEntry.*;
 
 class PetsCursorAdapter extends CursorAdapter {
     Context contextNew;

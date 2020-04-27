@@ -1,4 +1,4 @@
-package com.example.android.pets.Data;
+package com.nikitha.android.pets.Data;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -22,7 +22,7 @@ public final class PetsContract {
         public final static int gender_Pet_Unknown=0;
         public final static int gender_Pet_Male=1;
         public final static int gender_Pet_Female=2;
-        public static final String CONTENT_AUTHORITY = "com.example.android.pets.Data";
+        public static final String CONTENT_AUTHORITY = "com.nikitha.android.pets.Data";
         /**
          * To make this a usable URI, we use the parse method which takes in a URI string and returns a Uri.
          */

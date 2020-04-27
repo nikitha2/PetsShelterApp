@@ -1,4 +1,4 @@
-package com.example.android.pets.Data;
+package com.nikitha.android.pets.Data;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -12,14 +12,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.pets.R;
+import com.nikitha.android.pets.R;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import static com.example.android.pets.Data.Constants.*;
-import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
+import static com.nikitha.android.pets.Data.Constants.*;
+import static com.nikitha.android.pets.Data.PetsContract.PetsEntry.*;
 
 /**
  * ContentProvider for App: Pets

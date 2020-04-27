@@ -1,14 +1,13 @@
-package com.example.android.pets.Data;
+package com.nikitha.android.pets.Data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.example.android.pets.Data.Constants.*;
-import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
+import static com.nikitha.android.pets.Data.Constants.*;
+import static com.nikitha.android.pets.Data.PetsContract.PetsEntry.*;
 
 public class PetsDbHelper extends SQLiteOpenHelper {
 

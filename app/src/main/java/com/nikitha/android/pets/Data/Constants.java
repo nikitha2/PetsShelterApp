@@ -1,10 +1,6 @@
-package com.example.android.pets.Data;
+package com.nikitha.android.pets.Data;
 
-import android.net.Uri;
-
-import java.net.URI;
-
-import static com.example.android.pets.Data.PetsContract.PetsEntry.TABLE_NAME;
+import static com.nikitha.android.pets.Data.PetsContract.PetsEntry.TABLE_NAME;
 
 public final class Constants {
 
@@ -28,5 +24,5 @@ public final class Constants {
     public static String SQL_DELETE_ALL_FROM_TABLE ="DELETE * FROM TABLE "+ TABLE_NAME;
 
 //content URI format- content://authority/path/id
-    public static final String URI="content://com.example.android.pets.Data/"+TABLE_NAME;
+    public static final String URI="content://com.nikitha.android.pets.Data/"+TABLE_NAME;
 }

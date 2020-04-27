@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.pets;
+package com.nikitha.android.pets;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -21,28 +21,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-
-import static com.example.android.pets.Data.Constants.*;
-import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
-
+import static com.nikitha.android.pets.Data.Constants.*;
+import static com.nikitha.android.pets.Data.PetsContract.PetsEntry.*;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
@@ -77,8 +70,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 startActivity(intent);
             }
         });
-
-
     }
 
 
