@@ -19,29 +19,26 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.example.android.pets.Data.Constants;
-import com.example.android.pets.Data.PetProvider;
-import com.example.android.pets.Data.PetsContract;
-import com.example.android.pets.Data.PetsDbHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.example.android.pets.Data.Constants.*;
 import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
@@ -49,10 +46,10 @@ import static com.example.android.pets.Data.PetsContract.PetsEntry.*;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     Cursor cursor;
     Uri uri=Uri.parse(URI);
-
+    PetsCursorAdapter adapter;
     /** Tag for the log messages */
     public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
 
@@ -61,15 +58,15 @@ public class CatalogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
 
-        // to test if db is created as expected- open view->ToolsWindow->Device File Explorer
-        // goto Data->Data -> your package com.example.android.pets and see if DB is created. If below method runs statement will be created.
-        //download it into your computer and in terminal goto the path
-        //type sqlite3 PetsData.db (db name here)
-        //.tables  // will give the list of tables in the db
-        //PLASMA TABLE_INFO(Pets) //pets is the table name - will give the columns created. check if table created as expected.
-        //.schema will give the command used to create the table.
-        Cursor cursor=readDatabaseInfo();
-        displayDatabaseInfo(cursor);
+        //setting displayView.onItemClickListener will enable us to set onclickListener on each item of the list. it is specific method
+        //for listviews so its easier.
+        ListView displayView = (ListView) findViewById(R.id.list_view_pet);
+        adapter = new PetsCursorAdapter(this, null, 0);
+        displayView.setAdapter(adapter);
+        View emptyView = findViewById(R.id.empty_view);
+        displayView.setEmptyView(emptyView);
+
+        Loader<Cursor> cursorLoader = getSupportLoaderManager().initLoader(1, null, this);
 
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -84,12 +81,6 @@ public class CatalogActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        cursor=readDatabaseInfo();
-        displayDatabaseInfo(cursor);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,8 +100,8 @@ public class CatalogActivity extends AppCompatActivity {
                 Log.v("Catalog Activity","newRowId = " +newRowId);
                 Toast toast ;
                 if(newRowId!=-1) {
-                    cursor=readDatabaseInfo();
-                    displayDatabaseInfo(cursor);
+//                    cursor=readDatabaseInfo();
+//                    displayDatabaseInfo(cursor);
                     toast = Toast.makeText(this, " Pet added with new row id :" + newRowId, Toast.LENGTH_SHORT);
                     toast.show();
                 }
@@ -123,8 +114,8 @@ public class CatalogActivity extends AppCompatActivity {
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 deleteAllRowsInDatabase();
-                cursor=readDatabaseInfo();
-                displayDatabaseInfo(cursor);
+//                cursor=readDatabaseInfo();
+//                displayDatabaseInfo(cursor);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -153,7 +144,7 @@ public class CatalogActivity extends AppCompatActivity {
      */
     private Cursor readDatabaseInfo() {
         Uri uri1;
-        String[] columns={COLUMN_PET_NAME,COLUMN_PET_BREED,COLUMN_PET_WEIGHT,COLUMN_PET_GENDER};
+        String[] columns={_ID,COLUMN_PET_NAME,COLUMN_PET_BREED,COLUMN_PET_WEIGHT,COLUMN_PET_GENDER};
         //"ORDER BY col "+ PetsContract.PetsEntry._ID
         // to get a Cursor that contains all rows from the pets table.
         cursor=getContentResolver().query(uri,columns,null,null,null);
@@ -165,41 +156,32 @@ public class CatalogActivity extends AppCompatActivity {
      * the pets database.
      */
     private void displayDatabaseInfo(Cursor cursor) {
-        String name,breed,gender;
-        String weight;
-        int rowCount=cursor.getCount();
-        int colCount=cursor.getColumnCount();
-        ArrayList<ListItems> listItemsArray=new ArrayList<ListItems>();
-        ArrayList<String[]> rowLists = new ArrayList<>();
-        try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
+        ListView displayView = (ListView) findViewById(R.id.list_view_pet);
+        adapter = new PetsCursorAdapter(this, cursor, 0);
+        displayView.setAdapter(adapter);
 
-            cursor.moveToPosition(-1);
-            while(cursor.moveToNext()){
-                name=cursor.getString(cursor.getColumnIndex("Name"));
-                breed=cursor.getString(cursor.getColumnIndex("Breed"));
-                gender=cursor.getString(cursor.getColumnIndex("Gender"));
-                weight=cursor.getString(cursor.getColumnIndex("Weight"));
-                rowLists.add(new String[]{name, breed, gender, weight});
-                listItemsArray.add(new ListItems(name,breed,gender,weight));
-            }
-            ListView displayView = (ListView) findViewById(R.id.text_view_pet);
-            PetsAdaptor petsAdaptor=new PetsAdaptor(this,listItemsArray);
-            displayView.setAdapter(petsAdaptor);
+        View emptyView = findViewById(R.id.empty_view);
+        displayView.setEmptyView(emptyView);
+    }
 
-            /*StringBuilder output=new StringBuilder();
-            output.append("\n ");
-            for(int row=0;row<rowLists.size();row++){
-                for(int col=0;col<rowLists.get(0).length;col++){
-                    output.append(rowLists.get(row)[col]+"    ");
-                }
-                output.append("\n ");
-            }*/
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
-        }
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        String[] columns={_ID,COLUMN_PET_NAME,COLUMN_PET_BREED,COLUMN_PET_WEIGHT,COLUMN_PET_GENDER};
+        CursorLoader petsCursorLoader = new CursorLoader(this, uri, columns,null, null, null);
+        return petsCursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+
     }
 }

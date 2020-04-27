@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:text="@string/name"
         android:layout_height="@dimen/item_height"
+        android:textStyle="bold"
         style="@style/ListItemStyle"/>
 
     <TextView
@@ -20,5 +21,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/item_height"
         style="@style/ListItemStyle"
+        android:textColor="@color/cardview_dark_background"
         />
 </LinearLayout>

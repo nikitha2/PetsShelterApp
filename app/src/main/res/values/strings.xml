@@ -15,6 +15,7 @@
     <string name="app_name">Pets</string>
     <string name="name">Name</string>
     <string name="breed">Breed</string>
+    <string name="editPet"> Edit Pet </string>
 
     <!-- Label for overflow menu option that inserts fake pet data into the app [CHAR LIMIT=20] -->
     <string name="action_insert_dummy_data">Insert Dummy Data</string>
@@ -57,18 +58,34 @@
 
     <!-- Label for dropdown menu option if the pet is male [CHAR LIMIT=20] -->
     <string name="gender_male">Male</string>
+    <!-- Dialog message when user is leaving editor but hasn't saved changes [CHAR LIMIT=NONE] -->
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
 
+    <!-- Dialog button text for the option to discard a user's changes [CHAR LIMIT=20] -->
+    <string name="discard">Discard</string>
+    <string name="unKnownBreed">Unknown breed</string>
+
+    <!-- Dialog button text for the option to keep editing the current pet [CHAR LIMIT=20] -->
+    <string name="keep_editing">Keep Editing</string>
     <!-- Label for dropdown menu option if the pet is female [CHAR LIMIT=20] -->
     <string name="gender_female">Female</string>
 
     <string name="insetNotPossible">Insert not possible with URI : </string>
     <string name="petAdded"> Pet added </string>
+    <string name="petdelete"> Pet record deleted </string>
+
     <string name="errorWhenpetAdd"> Error when adding pet </string>
+    <string name="errorWhenpetDelete"> Error when deleting pet </string>
+
     <string name="wtRequired"> Pet requires a weight. Default is 0</string>
     <string name="breedRequired"> Pet requires a breed </string>
     <string name="nameRequired"> Pet requires a name </string>
     <string name="petupdated"> Pet data updated </string>
     <string name="errorpetupdate"> Error when updating Pet data </string>
 
+    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50] -->
+    <string name="empty_view_title_text">It\'s a bit lonely here...</string>
 
+    <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
+    <string name="empty_view_subtitle_text">Get started by adding a pet</string>
 </resources>

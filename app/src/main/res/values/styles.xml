@@ -63,5 +63,7 @@
         <item name="android:layout_marginBottom">@dimen/item_margin</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/item_textSize</item>
+        <item name="android:textColor">@color/myblack</item>
+
     </style>
 </resources>

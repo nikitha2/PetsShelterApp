@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -58,6 +59,13 @@ public class PetProvider extends ContentProvider {
                          cursor = db.query(TABLE_NAME, projection,  selection, selectionArgs, null,null, sortOrder); break;
             default:cursor=null;break;
         }
+//        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Set notification URI on the Cursor,
+        // so we know what content URI the Cursor was created for.
+        // If the data at this URI changes, then we know we need to update the Cursor.
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return cursor;
     }
 
@@ -88,18 +96,20 @@ public class PetProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         match=sUriMatcher.match(uri);
         Uri newUri = null;
-        long newId;
-        values= wtValidationCheck(values);
-        switch(match) {
-            case PETS:
-                      if(validationChecksPass(values)) {
-                          newId=db.insert(TABLE_NAME, null, values);
-                          newUri = ContentUris.withAppendedId(uri, newId);
-                      }
-                       break;
-            default:
+        long newId=0;
+        values= wtAndBreedValidationCheck(values);
+        if(validationChecksPass(values)) {
+            newId=db.insert(TABLE_NAME, null, values);
+            newUri = ContentUris.withAppendedId(uri, newId);
+        }
+            if(newId==-1){
                 String e= R.string.insetNotPossible+uri.toString();
                 Log.e(LOG_TAG,e);
+        }
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (newId != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return newUri;
     }
@@ -113,15 +123,23 @@ public class PetProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         match=sUriMatcher.match(uri);
-
+        int noRowsDeleted = 0;
         switch(match) {
-            case PETS:db.delete(TABLE_NAME,selection,selectionArgs);break;
+            case PETS:noRowsDeleted=db.delete(TABLE_NAME,selection,selectionArgs);break;
             case PETS_ID:selection=PetsContract.PetsEntry._ID+"=?";
                          selectionArgs=new String[] { String.valueOf(ContentUris.parseId(uri)) };
-                         db.delete(TABLE_NAME,selection,selectionArgs);break;
+                         noRowsDeleted=db.delete(TABLE_NAME,selection,selectionArgs);break;
             default:
         }
-        return 0;
+        if(noRowsDeleted!=0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (noRowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return noRowsDeleted;
     }
 
     /**
@@ -132,7 +150,7 @@ public class PetProvider extends ContentProvider {
         match=sUriMatcher.match(uri);
         int noOfRowsUpdated=-1;
         if(valueChanges(values)) {
-            values = wtValidationCheck(values);
+            values = wtAndBreedValidationCheck(values);
         }
         switch(match) {
             case PETS:if(validationChecksPass(values)) {
@@ -148,13 +166,18 @@ public class PetProvider extends ContentProvider {
                     String e= R.string.insetNotPossible+uri.toString();
                     throw new IllegalArgumentException(e);
         }
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (noOfRowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
         return noOfRowsUpdated;
     }
 
     private boolean validationChecksPass(ContentValues values) {
         if(values.containsKey(COLUMN_PET_NAME)) {
             String name = values.getAsString(COLUMN_PET_NAME);
-            if (name == null || name.isEmpty()) {
+            if (TextUtils.isEmpty(name)) {
                 toast = Toast.makeText(getContext(), R.string.nameRequired, Toast.LENGTH_SHORT);
                 toast.show();
                 return false;
@@ -162,9 +185,7 @@ public class PetProvider extends ContentProvider {
         }
         if(values.containsKey(COLUMN_PET_BREED)) {
             String breed = values.getAsString(COLUMN_PET_BREED);
-            if (breed == null || breed.isEmpty()) {
-                toast = Toast.makeText(getContext(), R.string.breedRequired, Toast.LENGTH_SHORT);
-                toast.show();
+            if (TextUtils.isEmpty(breed)) {
                 return false;
             }
         }
@@ -184,13 +205,19 @@ public class PetProvider extends ContentProvider {
         }
         return true;
     }
-    private ContentValues wtValidationCheck(ContentValues values) {
+    private ContentValues wtAndBreedValidationCheck(ContentValues values) {
 
         if(values.containsKey(COLUMN_PET_WEIGHT)) {
             Integer wt = values.getAsInteger(COLUMN_PET_WEIGHT);
             if (wt == null || !isValidWeight(wt)) {
                 wt=0;
                 values.put(COLUMN_PET_WEIGHT,wt);            }
+        }
+        if(values.containsKey(COLUMN_PET_BREED)) {
+            String breed = values.getAsString(COLUMN_PET_BREED);
+            if (TextUtils.isEmpty(breed)) {
+                values.put(COLUMN_PET_BREED,"Unknown breed");
+            }
         }
         return values;
     }
